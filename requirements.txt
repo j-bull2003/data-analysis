@@ -1,0 +1,5 @@
+plotly==2.0.11 
+dash==0.17.5 
+dash_renderer 
+dash_html_components  
+pandas_datareader
