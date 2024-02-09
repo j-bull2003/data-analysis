@@ -1,54 +1,35 @@
-# pip install plotly==2.0.11 pip install dash==0.17.5 pip install dash_renderer pip install dash_html_components pip install pandas_datareader
-# See official docs at https://dash.plotly.com
-# pip install dash pandas
+# Import packages
+from dash import Dash, html, dash_table, dcc, callback, Output, Input
+import pandas as pd
+import plotly.express as px
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
+ 
+# Incorporate data
+# df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
 
-from dash import Dash, html
-
+# Initialize the app
 app = Dash(__name__)
 
+# App layout
 app.layout = html.Div([
-    html.Div(children='Hello World')
+    html.Div(children='My First App with Data, Graph, and Controls'),
+    html.Hr(),
+    dcc.RadioItems(options=['pop', 'lifeExp', 'gdpPercap'], value='lifeExp', id='controls-and-radio-item'),
+    dash_table.DataTable(data=df.to_dict('records'), page_size=6),
+    dcc.Graph(figure={}, id='controls-and-graph')
 ])
 
+# Add controls to build the interaction
+@callback(
+    Output(component_id='controls-and-graph', component_property='figure'),
+    Input(component_id='controls-and-radio-item', component_property='value')
+)
+def update_graph(col_chosen):
+    fig = px.histogram(df, x='continent', y=col_chosen, histfunc='avg')
+    return fig
+
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-# from dash import Dash, dcc, html, Input, Output
-# import plotly.express as px
-
-# import pandas as pd
-
-# df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminderDataFiveYear.csv')
-
-# app = Dash(__name__)
-
-# app.layout = html.Div([
-#     dcc.Graph(id='graph-with-slider'),
-#     dcc.Slider(
-#         df['year'].min(),
-#         df['year'].max(),
-#         step=None,
-#         value=df['year'].min(),
-#         marks={str(year): str(year) for year in df['year'].unique()},
-#         id='year-slider'
-#     )
-# ])
-
-
-# @app.callback(
-#     Output('graph-with-slider', 'figure'),
-#     Input('year-slider', 'value'))
-# def update_figure(selected_year):
-#     filtered_df = df[df.year == selected_year]
-
-#     fig = px.scatter(filtered_df, x="gdpPercap", y="lifeExp",
-#                      size="pop", color="continent", hover_name="country",
-#                      log_x=True, size_max=55)
-
-#     return fig
-
-
-# if __name__ == '__main__':
-#     app.run_server(debug=True)
